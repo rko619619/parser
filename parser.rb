@@ -8,10 +8,10 @@ class CorrectArgument
   end
 
   def check
-    if not @file_path.nil?
+    if !@file_path.nil?
       puts('A file is empty')
-      if File.extname(@file_path) == '.log' and File.exist?(@file_path)
-        puts("A good file to work")
+      if (File.extname(@file_path) == '.log') && File.exist?(@file_path)
+        puts('A good file to work')
         true
       else
         false
@@ -40,7 +40,7 @@ class SplitData
   end
 
   def correct_data
-    @file_read.map {|x| x.split(' ')}.each do |var|
+    @file_read.map { |x| x.split(' ') }.each do |var|
       @data[var[0]] += [var[1]]
     end
     @data
@@ -88,19 +88,15 @@ class UniqVisits
   end
 end
 
-
 ARGV.each do |file_path|
   argv = CorrectArgument.new(file_path)
-  if argv.check
-    file = ReadFile.new(file_path)
-    file_read = file.read
-    data = SplitData.new(file_read)
-    correct_data = data.correct_data
-    visits = VisitsWebpage.new(correct_data)
-    visits.correct
-    uniq_visits = UniqVisits.new(correct_data)
-    uniq_visits.correct
-  end
+  next unless argv.check
+  file = ReadFile.new(file_path)
+  file_read = file.read
+  data = SplitData.new(file_read)
+  correct_data = data.correct_data
+  visits = VisitsWebpage.new(correct_data)
+  visits.correct
+  uniq_visits = UniqVisits.new(correct_data)
+  uniq_visits.correct
 end
-
-
