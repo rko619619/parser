@@ -1,5 +1,3 @@
-file_path = ARGV
-
 class CorrectArgument
   attr_accessor :file_path
 
