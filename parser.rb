@@ -58,6 +58,8 @@ class VisitsWebpage
     sort(@correct_hash)
   end
 
+  private
+
   def sort(hash)
     sorted_hash = hash.sort_by { |_key, value| value }.reverse.to_h
     write(sorted_hash)
@@ -80,6 +82,8 @@ class UniqVisits
     end
     write(@correct_hash)
   end
+
+  private
 
   def write(correct_hash)
     puts(correct_hash.map { |k, v| "#{k} #{v} unique views" })
