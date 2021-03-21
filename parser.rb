@@ -1,37 +1,106 @@
 file_path = ARGV
 
-if file_path[0].nil?
-  puts('You idiot')
-else
-  if File.extname(file_path[0]) == '.log' and File.exist?(file_path[0])
-    puts("Done")
-  else
-    puts('Can you repeat')
+class CorrectArgument
+  attr_accessor :file_path
+
+  def initialize(file_path)
+    @file_path = file_path
+  end
+
+  def check
+    if not @file_path.nil?
+      puts('A file is empty')
+      if File.extname(@file_path) == '.log' and File.exist?(@file_path)
+        puts("A good file to work")
+        true
+      else
+        false
+      end
+    else
+      puts('Can you enter a correct file?')
+      false
+    end
   end
 end
 
-result = File.read(file_path[0]).split(/\n+/)
+class ReadFile
+  def initialize(file_path)
+    @file_path = file_path
+  end
 
-data = Hash.new([])
-result.map {|x| x.split(' ')}.each do |mass|
-  data[mass[0]] += [mass[1]]
+  def read
+    File.read(@file_path).split(/\n+/)
+  end
 end
 
-data1 = Hash.new(0)
-data.each do |key, value|
-  data1[key] += value.length
+class SplitData
+  def initialize(file_read)
+    @file_read = file_read
+    @data = Hash.new([])
+  end
+
+  def correct_data
+    @file_read.map {|x| x.split(' ')}.each do |var|
+      @data[var[0]] += [var[1]]
+    end
+    @data
+  end
 end
-sorted_hash = data1.sort_by { |_key, value| value }.reverse.to_h
-puts(sorted_hash.map { |k, v| "#{k} #{v} visits " }.join("\n"))
 
+class VisitsWebpage
+  def initialize(correct_data)
+    @correct_hash = Hash.new(0)
+    @correct_data = correct_data
+  end
 
-data2 = Hash.new(0)
-data.each do |key, value|
-  data2[key] += value.uniq.length
+  def correct
+    @correct_data.each do |key, value|
+      @correct_hash[key] += value.length
+    end
+    sort(@correct_hash)
+  end
+
+  def sort(hash)
+    sorted_hash = hash.sort_by { |_key, value| value }.reverse.to_h
+    write(sorted_hash)
+  end
+
+  def write(sorted_hash)
+    puts(sorted_hash.map { |key, value| "#{key} #{value} visits " }.join("\n"))
+  end
 end
 
-puts("=======================================================================================================")
+class UniqVisits
+  def initialize(correct_data)
+    @correct_hash = Hash.new(0)
+    @correct_data = correct_data
+  end
 
-puts(sorted_hash.map { |k, v| "#{k} #{v} unique views" })
+  def correct
+    @correct_data.each do |key, value|
+      @correct_hash[key] += value.uniq.length
+    end
+    write(@correct_hash)
+  end
+
+  def write(correct_hash)
+    puts(correct_hash.map { |k, v| "#{k} #{v} unique views" })
+  end
+end
+
+
+ARGV.each do |file_path|
+  argv = CorrectArgument.new(file_path)
+  if argv.check
+    file = ReadFile.new(file_path)
+    file_read = file.read
+    data = SplitData.new(file_read)
+    correct_data = data.correct_data
+    visits = VisitsWebpage.new(correct_data)
+    visits.correct
+    uniq_visits = UniqVisits.new(correct_data)
+    uniq_visits.correct
+  end
+end
 
 
