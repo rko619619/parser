@@ -1,7 +1,7 @@
 class Validator
   attr_reader :file_path
 
-  EXPAN = ['.log']
+  EXPAN = ['.log'].freeze
 
   def initialize(file_path)
     @file_path = file_path
@@ -30,7 +30,6 @@ class Validator
     EXPAN.include?(File.extname(file_path))
   end
 end
-
 
 class Reader
   attr_reader :file_path
@@ -66,14 +65,9 @@ class VisitsDecorator
   end
 
   def correct
-    visits = correct_data.sort_by { |key, value| value.length }.reverse.to_h
-    write(visits)
-  end
-
-  private
-
-  def write(sorted_hash)
-    puts(sorted_hash.map { |key, value| "#{key} #{value.length} visits " }.join("\n"))
+    visits = correct_data.sort_by { |_key, value| value.length }.reverse.to_h
+    visits.map { |key, value| visits[key] = value.length }
+    visits
   end
 end
 
@@ -84,17 +78,25 @@ class UniqVisitsDecorator
   end
 
   def correct
-    uniq_visits = correct_data.sort_by { |key, value| value.uniq.length }.reverse.to_h
-    write(uniq_visits)
-  end
-
-  private
-
-  def write(correct_hash)
-    puts(correct_hash.map { |key, value| "#{key} #{value.uniq.length} unique views" })
+    uniq_visits = correct_data.sort_by { |_key, value| value.uniq.length }.reverse.to_h
+    uniq_visits.map { |key, value| uniq_visits[key] = value.uniq.length }
+    uniq_visits
   end
 end
 
+class Printer
+  attr_reader :data, :description
+  def initialize(data, description)
+    @data = data
+    @description = description
+  end
+
+  def printer
+    data.map do |key, value|
+      puts("#{key} - #{value} #{description}")
+    end
+  end
+end
 
 ARGV.each do |file_path|
   argv = Validator.new(file_path)
@@ -103,8 +105,8 @@ ARGV.each do |file_path|
   file_read = file.read
   data = Spliter.new(file_read)
   correct_data = data.correct_data
-  visits = VisitsDecorator.new(correct_data)
-  visits.correct
-  uniq_visits = UniqVisitsDecorator.new(correct_data)
-  uniq_visits.correct
+  visits = VisitsDecorator.new(correct_data).correct
+  Printer.new(visits, 'Visits').printer
+  uniq_visits = UniqVisitsDecorator.new(correct_data).correct
+  Printer.new(uniq_visits, 'Uniq visits').printer
 end
