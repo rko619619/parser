@@ -7,8 +7,8 @@ class Validator
     @file_path = file_path
   end
 
-  def check
-    if nil_file && extname && exist
+  def check?
+    if file_present? && extname? && exist?
       true
     else
       puts('Can you enter a correct file?')
@@ -18,15 +18,15 @@ class Validator
 
   private
 
-  def nil_file
+  def file_present?
     !file_path.nil?
   end
 
-  def exist
+  def exist?
     File.exist?(file_path)
   end
 
-  def extname
+  def extname?
     EXPAN.include?(File.extname(file_path))
   end
 end
@@ -45,6 +45,7 @@ end
 
 class Spliter
   attr_reader :file_read, :data
+
   def initialize(file_read)
     @file_read = file_read
     @data = Hash.new([])
@@ -60,6 +61,7 @@ end
 
 class VisitsDecorator
   attr_reader :correct_data
+
   def initialize(correct_data)
     @correct_data = correct_data
   end
@@ -73,6 +75,7 @@ end
 
 class UniqVisitsDecorator
   attr_reader :correct_data
+
   def initialize(correct_data)
     @correct_data = correct_data
   end
@@ -86,6 +89,7 @@ end
 
 class Printer
   attr_reader :data, :description
+
   def initialize(data, description)
     @data = data
     @description = description
@@ -98,10 +102,10 @@ class Printer
   end
 end
 
-ARGV.each do |file_path|
-  argv = Validator.new(file_path)
-  next unless argv.check
-  file = Reader.new(file_path)
+if ARGV[0]
+  argv = Validator.new(ARGV[0])
+  argv.check?
+  file = Reader.new(ARGV[0])
   file_read = file.read
   data = Spliter.new(file_read)
   correct_data = data.correct_data
@@ -109,4 +113,6 @@ ARGV.each do |file_path|
   Printer.new(visits, 'Visits').printer
   uniq_visits = UniqVisitsDecorator.new(correct_data).correct
   Printer.new(uniq_visits, 'Uniq visits').printer
+else
+  raise ArgumentError
 end
